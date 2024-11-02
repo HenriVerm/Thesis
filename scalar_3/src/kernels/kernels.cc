@@ -38,6 +38,7 @@ __attribute__((always_inline)) uint16 modular_multiplication(uint16 factor, uint
 // 2) Factors moeten in juiste volgorde
 // 3) Barret multiplication
 // 4) Deadlock bij factors inladen
+
 void ntt(adf::input_buffer<uint16> & in_data, adf::input_buffer<uint16> & in_factors, adf::output_buffer<uint16> & out) {
 //void ntt(adf::input_buffer<uint16> & in_data, adf::input_buffer<uint16> & in_factors, adf::input_buffer<uint16>& in_barretFactors, adf::output_buffer<uint16> & out) {
   uint16 i1, i2;
