@@ -12,9 +12,8 @@
 #endif
 
 X86SIM_THREAD_LOCAL aie::tile tile=aie::tile::current(); //get the tile of the kernel
-uint16 modulus = MODULUS;
 
-__attribute__((always_inline)) uint16 modular_reduction(uint16 a) {
+__attribute__((always_inline)) uint16 modular_reduction(const uint16 a, const uint16 modulus) {
   if (a >= modulus) {
     return a - modulus;
     printf("Input of mod_red: %d, output : %d\n", a, a - modulus);
@@ -26,26 +25,20 @@ __attribute__((always_inline)) uint16 modular_reduction(uint16 a) {
 
 
 
-__attribute__((always_inline)) uint16 modular_multiplication(uint16 factor, uint16 barret_factor, uint16 a) {
+__attribute__((always_inline)) uint16 modular_multiplication(const uint16 factor, const uint16 barret_factor, const uint16 a, const uint16 modulus) {
   uint32 t = (a * barret_factor) >> K;
   uint16 res = a*factor - modulus*t; // Eignk round ipv floor
   printf("Input of mod_mul: %d, %d, %d, t : %d, res : %d\n", factor, barret_factor, a, t, res);
   return res;
 }
 
-// Problemen : 
-// 1) in-place in input buffer
-// 2) Factors moeten in juiste volgorde
-// 3) Barret multiplication
-// 4) Deadlock bij factors inladen
 
-void ntt(adf::input_buffer<uint16> & in_data, adf::input_buffer<uint16> & in_factors, adf::output_buffer<uint16> & out) {
-//void ntt(adf::input_buffer<uint16> & in_data, adf::input_buffer<uint16> & in_factors, adf::input_buffer<uint16>& in_barretFactors, adf::output_buffer<uint16> & out) {
+void ntt(adf::input_buffer<uint16> & in_data, adf::output_buffer<uint16> & out, const uint16 modulus, const uint16 (&in_twiddle_factors)[FACTORS_LENGTH], const uint16 (&in_barret_factors)[FACTORS_LENGTH]) {
   uint16 i1, i2;
   uint16* inDataItr = in_data.data();
   uint16* outItr = out.data();
-  uint16* factorsPointer = in_factors.data();
-  uint16 barretFactorsPointer[2] = {9, 28865};
+
+  printf("Modulus : %d", modulus);
 
   // Invar : At innermost loop : crossover_sections_n * butterflies_per_section_double == NTT_LENGTH
   int crossover_sections_n = 1; // Number of butterfly sections
@@ -54,16 +47,16 @@ void ntt(adf::input_buffer<uint16> & in_data, adf::input_buffer<uint16> & in_fac
   for (unsigned i=0; i< NO_LAYERS; i++) { // Loop over layers
     uint16* section_start = inDataItr;
     for (unsigned j=0; j < crossover_sections_n; j++) { // Loop over butterfly sections
-      uint16 omega_cur = factorsPointer[j];
-      uint16 barret_omega_cur = barretFactorsPointer[j];
+      uint16 omega_cur = in_twiddle_factors[j];
+      uint16 barret_omega_cur = in_barret_factors[j];
       uint16* current_butterfly_firstterm_pos = section_start;
       uint16* current_butterfly_lastterm_pos = section_start + butterflies_per_section;
       for (unsigned k=0; k < butterflies_per_section; k++) { // Loop over the butterflies in a section
         printf("Omega: %d, barret_omega : %d, a1 : %d, a2 : %d\n", omega_cur, barret_omega_cur, *current_butterfly_firstterm_pos, *current_butterfly_lastterm_pos);
-        uint16 T = modular_multiplication(omega_cur, barret_omega_cur, (*current_butterfly_lastterm_pos));
+        uint16 T = modular_multiplication(omega_cur, barret_omega_cur, (*current_butterfly_lastterm_pos), modulus);
         uint16 U = (*current_butterfly_firstterm_pos);
-        (*current_butterfly_firstterm_pos) = modular_reduction(U + T);
-        (*current_butterfly_lastterm_pos) = modular_reduction(U - T + modulus);
+        (*current_butterfly_firstterm_pos) = modular_reduction(U + T, modulus);
+        (*current_butterfly_lastterm_pos) = modular_reduction(U - T + modulus, modulus);
         printf("a1 : %d, a2 : %d\n", *current_butterfly_firstterm_pos, *current_butterfly_lastterm_pos);
         current_butterfly_firstterm_pos++;
         current_butterfly_lastterm_pos++;

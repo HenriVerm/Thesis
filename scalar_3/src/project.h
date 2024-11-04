@@ -9,25 +9,27 @@ class simpleGraph : public adf::graph {
 private:
   kernel first;
 public:
-  input_plio  in_factors;
-  //input_plio in_barretFactors;
+  input_port modulus_port;
+  input_port twiddle_factors_port;
+  input_port barret_factors_port;
+
   input_plio  in_data;
-  output_plio out;
+  output_plio out_data;
+
   simpleGraph(){
     
-    in_factors  = input_plio::create(plio_32_bits, "data/input_factors.txt");
-    //in_barretFactors  = input_plio::create(plio_32_bits, "data/input_barretFactors.txt");
     in_data  = input_plio::create(plio_32_bits, "data/input_data.txt");
-    out = output_plio::create(plio_32_bits, "data/output.txt");
+    out_data = output_plio::create(plio_32_bits, "data/output.txt");
 
     first = kernel::create(ntt);
+
     connect(in_data.out[0], first.in[0]);
-    connect(in_factors.out[0], first.in[1]);
-    //connect(in_barretFactors.out[0], first.in[2]);
-    connect(first.out[0], out.in[0]);
+    connect<parameter>(modulus_port, async(first.in[1]));
+    connect<parameter>(twiddle_factors_port, async(first.in[2]));
+    connect<parameter>(barret_factors_port, async(first.in[3]));
+    connect(first.out[0], out_data.in[0]);
+
     dimensions(first.in[0]) = { NTT_LENGTH };
-    dimensions(first.in[1]) = { FACTORS_LENGTH };
-    //dimensions(first.in[2]) = { FACTORS_LENGTH };
     dimensions(first.out[0]) = { NTT_LENGTH };
 
     source(first) = "kernels/kernels.cc";
