@@ -1,6 +1,7 @@
 
 #include <adf.h>
 #include <cmath>
+#include "adf/window/types.h"
 #include "kernels.h"
 #include "project.h"
 
@@ -35,10 +36,11 @@ int main(void) {
 
 // Bit reverse
 unsigned long long bitrev(unsigned long long a, unsigned short NO_OF_BITS) {
-    unsigned long long reverse_num = 0;
+    unsigned long long rev = 0;
     for (unsigned short i = 0; i < NO_OF_BITS; i++)
-        if ((num & (1 << i))) reverse_num |= 1 << ((NO_OF_BITS - 1) - i);
-    return reverse_num;
+        if ((a & (1 << i))) rev |= 1 << ((NO_OF_BITS - 1) - i);
+    LOG("input : %llu, bitrev : %llu\n", a, rev);
+    return rev;
 }
 
 
@@ -46,9 +48,10 @@ unsigned long long bitrev(unsigned long long a, unsigned short NO_OF_BITS) {
 void compute_twiddle_factors(uint16 (&twiddle_factors)[FACTORS_LENGTH]) {
     twiddle_factors[0] = 1;
     uint16 cur = twiddle_factors[0];
-    for (unsigned long long i = 0; i < FACTORS_LENGTH; i++) {
+    for (unsigned long long i = 1; i < FACTORS_LENGTH; i++) {
       cur = uint32(cur * OMEGA) % MODULUS;
-      twiddle_factors[bitrev(i, NO_LAYERS)] = cur; // NO_LAYERS = log_2(FACTORS_LENGTH)
+      LOG("cur : %d\n", cur);
+      twiddle_factors[bitrev(i, NO_LAYERS-1)] = cur; // NO_LAYERS = log_2(FACTORS_LENGTH)
     } 
 }
 
@@ -57,6 +60,13 @@ void compute_twiddle_factors(uint16 (&twiddle_factors)[FACTORS_LENGTH]) {
 // Compute the barret factors of the twiddle factors
 void compute_barret_factors(const uint16 (&twiddle_factors)[FACTORS_LENGTH], uint16 (&barret_factors)[FACTORS_LENGTH]) {
     for (unsigned long long i = 0; i < FACTORS_LENGTH; i++) {
-      barret_factors[i] = std::round((twiddle_factors[i] << K) / MODULUS);
+      const float rounded = std::round(float(twiddle_factors[i] << K) / float(MODULUS));
+      LOG("twiddle precalc: %f, rounded : %f\n", float(twiddle_factors[i] << K) / float(MODULUS), rounded);
+      if (rounded >= (1<<(sizeof(uint16)*8))) {
+          LOG("ERROR : barret factor too large\n"); 
+      }
+      barret_factors[i] = uint16(rounded);
+      LOG("twiddle : %d\n", twiddle_factors[i]);
+      LOG("barret : %d\n", barret_factors[i]);
     } 
 }

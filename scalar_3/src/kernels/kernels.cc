@@ -16,10 +16,10 @@ X86SIM_THREAD_LOCAL aie::tile tile=aie::tile::current(); //get the tile of the k
 __attribute__((always_inline)) uint16 modular_reduction(const uint16 a, const uint16 modulus) {
   if (a >= modulus) {
     return a - modulus;
-    printf("Input of mod_red: %d, output : %d\n", a, a - modulus);
+    LOG("Input of mod_red: %d, output : %d\n", a, a - modulus);
   } else {
+    LOG("Input of mod_red: %d, output : %d\n", a, a);
     return a;
-    printf("Input of mod_red: %d, output : %d\n", a, a);
   }
 }
 
@@ -28,7 +28,7 @@ __attribute__((always_inline)) uint16 modular_reduction(const uint16 a, const ui
 __attribute__((always_inline)) uint16 modular_multiplication(const uint16 factor, const uint16 barret_factor, const uint16 a, const uint16 modulus) {
   uint32 t = (a * barret_factor) >> K;
   uint16 res = a*factor - modulus*t; // Eignk round ipv floor
-  printf("Input of mod_mul: %d, %d, %d, t : %d, res : %d\n", factor, barret_factor, a, t, res);
+  LOG("Input of mod_mul: %d, %d, %d, t : %d, res : %d\n", factor, barret_factor, a, t, res);
   return res;
 }
 
@@ -38,7 +38,7 @@ void ntt(adf::input_buffer<uint16> & in_data, adf::output_buffer<uint16> & out, 
   uint16* inDataItr = in_data.data();
   uint16* outItr = out.data();
 
-  printf("Modulus : %d", modulus);
+  LOG("Modulus : %d\n", modulus);
 
   // Invar : At innermost loop : crossover_sections_n * butterflies_per_section_double == NTT_LENGTH
   int crossover_sections_n = 1; // Number of butterfly sections
@@ -52,12 +52,12 @@ void ntt(adf::input_buffer<uint16> & in_data, adf::output_buffer<uint16> & out, 
       uint16* current_butterfly_firstterm_pos = section_start;
       uint16* current_butterfly_lastterm_pos = section_start + butterflies_per_section;
       for (unsigned k=0; k < butterflies_per_section; k++) { // Loop over the butterflies in a section
-        printf("Omega: %d, barret_omega : %d, a1 : %d, a2 : %d\n", omega_cur, barret_omega_cur, *current_butterfly_firstterm_pos, *current_butterfly_lastterm_pos);
+        LOG("Omega: %d, barret_omega : %d, a1 : %d, a2 : %d\n", omega_cur, barret_omega_cur, *current_butterfly_firstterm_pos, *current_butterfly_lastterm_pos);
         uint16 T = modular_multiplication(omega_cur, barret_omega_cur, (*current_butterfly_lastterm_pos), modulus);
         uint16 U = (*current_butterfly_firstterm_pos);
         (*current_butterfly_firstterm_pos) = modular_reduction(U + T, modulus);
         (*current_butterfly_lastterm_pos) = modular_reduction(U - T + modulus, modulus);
-        printf("a1 : %d, a2 : %d\n", *current_butterfly_firstterm_pos, *current_butterfly_lastterm_pos);
+        LOG("a1 : %d, a2 : %d\n", *current_butterfly_firstterm_pos, *current_butterfly_lastterm_pos);
         current_butterfly_firstterm_pos++;
         current_butterfly_lastterm_pos++;
       }
@@ -72,7 +72,7 @@ void ntt(adf::input_buffer<uint16> & in_data, adf::output_buffer<uint16> & out, 
   inDataItr = in_data.data();
   for (unsigned i=0; i < NTT_LENGTH; i++) {
     //*inDataItr = modular_reduction(*inDataItr);
-    printf("Output of scalar_2: %d\n", *inDataItr);
+    LOG("Output of scalar_2: %d\n", *inDataItr);
     *outItr++ = *inDataItr++;
   }
 
