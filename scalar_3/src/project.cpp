@@ -44,6 +44,7 @@ unsigned long long bitrev(const unsigned long long a, const unsigned short NO_OF
 }
 
 // Round a float to a uint16
+// Custom function to not have to rely on std which might not be present
 uint16 round(const float a) {
     if (a >= (1<<(sizeof(uint16)*8)) - 1) {
         LOG("ERROR : barret factor too large\n"); 
