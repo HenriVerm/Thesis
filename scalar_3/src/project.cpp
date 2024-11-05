@@ -35,7 +35,7 @@ int main(void) {
 
 
 // Bit reverse
-unsigned long long bitrev(unsigned long long a, unsigned short NO_OF_BITS) {
+unsigned long long bitrev(const unsigned long long a, const unsigned short NO_OF_BITS) {
     unsigned long long rev = 0;
     for (unsigned short i = 0; i < NO_OF_BITS; i++)
         if ((a & (1 << i))) rev |= 1 << ((NO_OF_BITS - 1) - i);
@@ -43,6 +43,14 @@ unsigned long long bitrev(unsigned long long a, unsigned short NO_OF_BITS) {
     return rev;
 }
 
+// Round a float to a uint16
+uint16 round(const float a) {
+    if (a >= (1<<(sizeof(uint16)*8)) - 1) {
+        LOG("ERROR : barret factor too large\n"); 
+    }
+    const uint16 rounded = uint16(a + 0.5);
+    return rounded;
+}
 
 // Compute the twiddle factors
 void compute_twiddle_factors(uint16 (&twiddle_factors)[FACTORS_LENGTH]) {
@@ -60,11 +68,8 @@ void compute_twiddle_factors(uint16 (&twiddle_factors)[FACTORS_LENGTH]) {
 // Compute the barret factors of the twiddle factors
 void compute_barret_factors(const uint16 (&twiddle_factors)[FACTORS_LENGTH], uint16 (&barret_factors)[FACTORS_LENGTH]) {
     for (unsigned long long i = 0; i < FACTORS_LENGTH; i++) {
-      const float rounded = std::round(float(twiddle_factors[i] << K) / float(MODULUS));
-      LOG("twiddle precalc: %f, rounded : %f\n", float(twiddle_factors[i] << K) / float(MODULUS), rounded);
-      if (rounded >= (1<<(sizeof(uint16)*8))) {
-          LOG("ERROR : barret factor too large\n"); 
-      }
+      const uint16 rounded = round(float(twiddle_factors[i] << K) / float(MODULUS));
+      LOG("twiddle precalc: %f, rounded : %d\n", float(twiddle_factors[i] << K) / float(MODULUS), rounded);
       barret_factors[i] = uint16(rounded);
       LOG("twiddle : %d\n", twiddle_factors[i]);
       LOG("barret : %d\n", barret_factors[i]);
