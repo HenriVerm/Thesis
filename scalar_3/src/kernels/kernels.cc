@@ -44,7 +44,7 @@ void ntt(adf::input_buffer<uint16> & in_data, adf::output_buffer<uint16> & out, 
   int crossover_sections_n = 1; // Number of butterfly sections
   int butterflies_per_section = NTT_LENGTH>>1; // Number of butterflies in each section
   int butterflies_per_section_double = NTT_LENGTH; // Number of butterflies in each section x2 = Number of samples per section
-  for (unsigned i=0; i< NO_LAYERS; i++) { // Loop over layers
+  for (unsigned i=0; i< NO_OF_LAYERS; i++) { // Loop over layers
     uint16* section_start = inDataItr;
     for (unsigned j=0; j < crossover_sections_n; j++) { // Loop over butterfly sections
       uint16 omega_cur = in_twiddle_factors[j];

@@ -29,7 +29,7 @@
 				"inputDirectory": "../..",
 				"additionalArgs": "",
 				"trace": {
-					"enableTrace": false,
+					"enableTrace": true,
 					"traceType": "onlineWdb",
 					"vcdFileName": "foo",
 					"generateXpe": false,

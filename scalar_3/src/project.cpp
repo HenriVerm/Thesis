@@ -3,6 +3,7 @@
 #include <cmath>
 #include "adf/window/types.h"
 #include "kernels.h"
+#include "kernels/include.h"
 #include "project.h"
 
 using namespace adf;
@@ -13,7 +14,7 @@ void compute_barret_factors(const uint16 (&twiddle_factors)[FACTORS_LENGTH], uin
 
 simpleGraph mygraph;
 
-int main(void) {
+int main(void) { 
   mygraph.init();
 
   // Determine twiddle factors
@@ -28,7 +29,7 @@ int main(void) {
   mygraph.update(mygraph.barret_factors_port, barret_factors, FACTORS_LENGTH);
   
   // Run the Graph
-  mygraph.run(1);
+  mygraph.run(NO_OF_NTTS);
   mygraph.end();
   return 0;
 }
@@ -47,7 +48,10 @@ unsigned long long bitrev(const unsigned long long a, const unsigned short NO_OF
 // Custom function to not have to rely on std which might not be present
 uint16 round(const float a) {
     if (a >= (1<<(sizeof(uint16)*8)) - 1) {
-        LOG("ERROR : barret factor too large\n"); 
+        printf("ERROR : barret factor too large, which shouldn't happen\n"); 
+    }
+    if (a >= 65536-1) {
+        printf("ERROR : barret factor too large, which shouldn't happen\n"); 
     }
     const uint16 rounded = uint16(a + 0.5);
     return rounded;
@@ -60,7 +64,7 @@ void compute_twiddle_factors(uint16 (&twiddle_factors)[FACTORS_LENGTH]) {
     for (unsigned long long i = 1; i < FACTORS_LENGTH; i++) {
       cur = uint32(cur * OMEGA) % MODULUS;
       LOG("cur : %d\n", cur);
-      twiddle_factors[bitrev(i, NO_LAYERS-1)] = cur; // NO_LAYERS = log_2(FACTORS_LENGTH)
+      twiddle_factors[bitrev(i, NO_OF_LAYERS-1)] = cur; // NO_LAYERS = log_2(FACTORS_LENGTH)
     } 
 }
 
