@@ -16,7 +16,7 @@
 #define K 16 // To remain in uint16 : Posibilities for (M,K) = (1,13);(2,14);(4,15),(8,16); Best (1,13) ig want eignk komen ze allemaal op zelfde neer, maar dan geen mult
 
 // DEBUG?
-//#define DEBUG
+#define DEBUG
 
 
 
