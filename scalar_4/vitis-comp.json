@@ -1,0 +1,15 @@
+{
+  "name": "scalar_4",
+  "type": "AI_ENGINE",
+  "platform": "/tools/Xilinx/Vitis/2024.1/base_platforms/xilinx_vck190_base_202410_1/xilinx_vck190_base_202410_1.xpfm",
+  "configuration": {
+    "componentType": "AI_ENGINE",
+    "aieGraphFiles": [
+      "src/project.cpp"
+    ],
+    "aieCompilerConfigurations": [],
+    "configFiles": [
+      "aiecompiler.cfg"
+    ]
+  }
+}
