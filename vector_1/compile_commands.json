@@ -1,0 +1,15 @@
+[
+  {
+    "directory": "/home/henri/Documents/masterproef/workspaces/attempts/vector_1/_ide/_build",
+    "arguments": [
+      "/tools/Xilinx/Vitis/2024.1/aietools/tps/lnx64/gcc/bin/g++",
+      "-c",
+      "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
+      "-I/home/henri/Documents/masterproef/workspaces/attempts/vector_1",
+      "-I/home/henri/Documents/masterproef/workspaces/attempts/vector_1/src",
+      "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
+      "/home/henri/Documents/masterproef/workspaces/attempts/vector_1/src/project.cpp"
+    ],
+    "file": "/home/henri/Documents/masterproef/workspaces/attempts/vector_1/src/project.cpp"
+  }
+]
