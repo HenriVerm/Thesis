@@ -7,7 +7,7 @@
 #define OMEGA 17 // 256-th root   // 3383
 
 // NTT Size
-#define NO_OF_NTTS 1
+#define NO_OF_NTTS 2
 #define NTT_LENGTH 256
 #define NO_OF_LAYERS 8
 #define FACTORS_LENGTH (1 << (NO_OF_LAYERS - 1))

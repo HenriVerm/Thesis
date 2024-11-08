@@ -10,7 +10,7 @@ using namespace adf;
 
 
 void compute_twiddle_factors(uint16* twiddle_factors);
-void compute_barret_factors(uint16* twiddle_factors, uint16* barret_factors);
+void compute_barret_factors(const uint16* twiddle_factors, uint16* barret_factors);
 
 simpleGraph mygraph;
 
@@ -18,8 +18,8 @@ int main(void) {
   mygraph.init();
 
   // Determine twiddle factors
-  uint16 *twiddle_factors=(uint16*)GMIO::malloc(FACTORS_LENGTH*sizeof(uint16));
-  uint16 *barret_factors=(uint16*)GMIO::malloc(FACTORS_LENGTH*sizeof(uint16));
+  const uint16 *twiddle_factors=(uint16*)GMIO::malloc(FACTORS_LENGTH*sizeof(uint16));
+  const uint16 *barret_factors=(uint16*)GMIO::malloc(FACTORS_LENGTH*sizeof(uint16));
   compute_twiddle_factors(twiddle_factors);
   compute_barret_factors(twiddle_factors, barret_factors);
 
@@ -29,6 +29,12 @@ int main(void) {
   
   // Run the Graph
   mygraph.run(NO_OF_NTTS);
+
+  // Free the memory
+  GMIO::free(twiddle_factors);
+  GMIO::free(barret_factors);
+
+  // End the graph
   mygraph.end();
   return 0;
 }
@@ -70,7 +76,7 @@ void compute_twiddle_factors(uint16* twiddle_factors) {
 
 
 // Compute the barret factors of the twiddle factors
-void compute_barret_factors(uint16* twiddle_factors, uint16* barret_factors) {
+void compute_barret_factors(const uint16* twiddle_factors, uint16* barret_factors) {
     for (unsigned long long i = 0; i < FACTORS_LENGTH; i++) {
       const uint16 rounded = round(float(twiddle_factors[i] << K) / float(MODULUS));
       LOG("twiddle precalc: %f, rounded : %d\n", float(twiddle_factors[i] << K) / float(MODULUS), rounded);
